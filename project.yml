@@ -1,0 +1,50 @@
+name: Gitfluence
+options:
+  bundleIdPrefix: com.gitfluence
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+
+targets:
+  Gitfluence:
+    type: application
+    platform: macOS
+    sources:
+      - path: Gitfluence
+        excludes:
+          - "**/.DS_Store"
+          - "WebResources/**"   # Added as folder references below
+      # Web editor bundles — copied as folder references so the directory
+      # structure (index.html + assets/) is preserved in the app bundle.
+      - path: Gitfluence/WebResources/RichEditor
+        type: folder
+        buildPhase: resources
+      - path: Gitfluence/WebResources/SourceEditor
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.gitfluence.app
+        INFOPLIST_FILE: Gitfluence/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Gitfluence/Gitfluence.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    info:
+      path: Gitfluence/Info.plist
+      properties:
+        CFBundleDisplayName: Gitfluence
+        CFBundleName: Gitfluence
+        LSMinimumSystemVersion: "$(MACOSX_DEPLOYMENT_TARGET)"
+        NSHumanReadableCopyright: ""
+        CFBundleIconName: AppIcon
+        NSDocumentsFolderUsageDescription: "Gitfluence needs access to read git repositories."
+        NSDesktopFolderUsageDescription: "Gitfluence needs access to read git repositories."
+        NSDownloadsFolderUsageDescription: "Gitfluence needs access to read git repositories."

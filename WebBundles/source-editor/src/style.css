@@ -1,0 +1,94 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  overflow: hidden;   /* CodeMirror manages its own scroll */
+}
+
+#editor {
+  width: 100%;
+  height: 100vh;
+}
+
+/* CodeMirror 6 overrides */
+.cm-editor {
+  height: 100%;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+
+.cm-editor.cm-focused { outline: none; }
+
+.cm-scroller {
+  overflow: auto;
+  line-height: 1.65;
+}
+
+.cm-content {
+  padding: 20px 0;
+  caret-color: #0066FF;
+}
+
+/* Gutter */
+.cm-gutters {
+  background: #F7F7F8 !important;
+  border-right: 1px solid #E5E7EB !important;
+  color: #9CA3AF;
+  min-width: 48px;
+}
+.cm-lineNumbers .cm-gutterElement {
+  padding: 0 10px 0 6px;
+  min-width: 40px;
+  text-align: right;
+}
+.cm-activeLineGutter {
+  background: #EEF2FF !important;
+  color: #6B7280;
+}
+.cm-activeLine {
+  background: rgba(0, 102, 255, 0.04) !important;
+}
+
+/* Selection */
+.cm-selectionBackground { background: rgba(0, 102, 255, 0.15) !important; }
+.cm-focused .cm-selectionBackground { background: rgba(0, 102, 255, 0.2) !important; }
+
+/* Cursor */
+.cm-cursor { border-left-color: #0066FF !important; }
+
+/* ─── GitHub Light-inspired syntax colours ─────────────────────────────── */
+/* Markdown headings */
+.tok-heading { color: #0550AE; font-weight: 700; }
+.tok-heading1 { color: #0550AE; }
+.tok-heading2 { color: #0550AE; }
+
+/* Emphasis / strong */
+.tok-emphasis { font-style: italic; }
+.tok-strong   { font-weight: 700; }
+
+/* Links */
+.tok-link { color: #0066FF; }
+.tok-url  { color: #0a3069; }
+
+/* Inline code / code block */
+.tok-monospace, .tok-code { color: #E83E8C; font-family: "JetBrains Mono", "SF Mono", Menlo, monospace; }
+
+/* Comments */
+.tok-comment { color: #6E7781; font-style: italic; }
+
+/* Strings */
+.tok-string { color: #0A3069; }
+
+/* Keywords */
+.tok-keyword { color: #CF222E; }
+
+/* Punctuation */
+.tok-punctuation { color: #6E7781; }
+
+/* Blockquote marker */
+.tok-quote { color: #6E7781; }
+
+/* List markers */
+.tok-list { color: #0550AE; }
