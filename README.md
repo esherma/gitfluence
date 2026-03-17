@@ -4,6 +4,10 @@ A native macOS document editor that combines Confluence's rich editing experienc
 
 ## The Problem
 
+
+https://github.com/user-attachments/assets/f18b9f83-2a29-4da3-b371-ee1c791da2e3
+
+
 Working across GitHub and a wiki tool like Confluence creates constant context-switching. When you're reviewing a PR, you jump to GitHub. When you're writing specs or documenting decisions, you jump to Confluence. Neither tool does both well: GitHub's markdown editor is barebones, and Confluence knows nothing about your code or pull requests.
 
 For teams that live in both — writing docs, reviewing diffs, leaving comments — the friction adds up.
