@@ -1,0 +1,16 @@
+{
+  "name": "gitfluence-diff-viewer",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "diff2html": "^3.4"
+  },
+  "devDependencies": {
+    "vite": "^6.0"
+  }
+}
