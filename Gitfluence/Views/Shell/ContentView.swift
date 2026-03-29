@@ -32,7 +32,9 @@ struct ContentView: View {
             SidebarView(selectedID: $selectedID)
                 .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 340)
         } detail: {
-            if let file = appState.selectedFile {
+            if let pr = appState.selectedPR {
+                PRDetailView(pr: pr)
+            } else if let file = appState.selectedFile {
                 DetailView(file: file)
             } else {
                 emptyDetail

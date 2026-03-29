@@ -30,6 +30,9 @@ targets:
       - path: Gitfluence/WebResources/SourceEditor
         type: folder
         buildPhase: resources
+      - path: Gitfluence/WebResources/DiffViewer
+        type: folder
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.gitfluence.app

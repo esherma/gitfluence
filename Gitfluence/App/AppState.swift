@@ -10,12 +10,33 @@ final class AppState {
     var branches:   [Branch]  = []
     var currentBranch: Branch?
 
+    // MARK: - Sidebar section
+    enum SidebarSection { case files, pullRequests }
+    var sidebarSection: SidebarSection = .files
+
     // MARK: - Selection
     var selectedFile: GitFile?
+    var selectedPR:   PullRequest?
 
     // MARK: - View state
-    enum ViewMode: String, CaseIterable { case rich, source }
+    enum ViewMode: String, CaseIterable { case rich, source, diff }
     var viewMode: ViewMode = .rich
+
+    // MARK: - Pull Requests
+    var prs:            [PullRequest] = []
+    var isLoadingPRs:   Bool = false
+    var prDiff:         String = ""
+    var prComments:     [PRComment] = []
+    var isLoadingPRData: Bool = false
+
+    // Pending comment (set when user clicks "+" on a diff line)
+    struct PendingComment: Identifiable, Equatable {
+        var id: String { "\(filePath):\(line):\(side)" }
+        let filePath: String
+        let line: Int
+        let side: String
+    }
+    var pendingComment: PendingComment?
 
     // MARK: - Loading / error
     var isLoadingRepo  = false
@@ -92,15 +113,62 @@ final class AppState {
         }
     }
 
+    // MARK: - Pull Requests
+
+    func loadPRs() async {
+        guard let repo = repository else { return }
+        isLoadingPRs = true
+        defer { isLoadingPRs = false }
+        do {
+            prs = try await GitHubService.openPRs(in: repo)
+        } catch {
+            errorMessage = "Could not load PRs: \(error.localizedDescription)"
+        }
+    }
+
+    func selectPR(_ pr: PullRequest) async {
+        guard let repo = repository else { return }
+        selectedPR = pr
+        selectedFile = nil
+        prDiff = ""
+        prComments = []
+        isLoadingPRData = true
+        defer { isLoadingPRData = false }
+        do {
+            async let diffResult     = GitHubService.diff(pr: pr, in: repo)
+            async let commentsResult = GitHubService.comments(pr: pr, in: repo)
+            let (d, c) = try await (diffResult, commentsResult)
+            prDiff     = d
+            prComments = c
+        } catch {
+            errorMessage = "Could not load PR data: \(error.localizedDescription)"
+        }
+    }
+
+    func submitComment(body: String, pr: PullRequest, path: String, line: Int, side: String) async throws {
+        guard let repo = repository else { return }
+        let comment = try await GitHubService.addComment(
+            to: pr, body: body, path: path, line: line, side: side, in: repo
+        )
+        prComments.append(comment)
+        pendingComment = nil
+    }
+
     // MARK: - Close repository
 
     func closeRepository() {
-        repository    = nil
-        fileTree      = []
-        branches      = []
-        currentBranch = nil
-        selectedFile  = nil
-        errorMessage  = nil
+        repository      = nil
+        fileTree        = []
+        branches        = []
+        currentBranch   = nil
+        selectedFile    = nil
+        selectedPR      = nil
+        prs             = []
+        prDiff          = ""
+        prComments      = []
+        pendingComment  = nil
+        errorMessage    = nil
+        sidebarSection  = .files
     }
 
     // MARK: - Security-scoped bookmark persistence

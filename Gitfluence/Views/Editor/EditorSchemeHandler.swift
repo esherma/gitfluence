@@ -88,4 +88,7 @@ extension EditorSchemeHandler {
     static func sourceEditorURL() -> URL {
         URL(string: "\(scheme)://SourceEditor/index.html")!
     }
+    static func diffViewerURL() -> URL {
+        URL(string: "\(scheme)://DiffViewer/index.html")!
+    }
 }

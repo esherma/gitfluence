@@ -70,6 +70,24 @@ enum GitService {
         )
     }
 
+    // MARK: - Diffs
+
+    /// Unified diff for a single file: working tree (or staged) vs HEAD.
+    static func diff(relativePath: String, in repo: Repository) async throws -> String {
+        // Try unstaged diff first; if empty, try staged vs HEAD
+        var output = try await ProcessRunner.run(
+            ["git", "-C", repo.rootURL.path, "diff", "--", relativePath],
+            cwd: repo.rootURL
+        )
+        if output.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            output = try await ProcessRunner.run(
+                ["git", "-C", repo.rootURL.path, "diff", "--cached", "--", relativePath],
+                cwd: repo.rootURL
+            )
+        }
+        return output
+    }
+
     // MARK: - File content
 
     static func fileContents(at url: URL) async throws -> String {

@@ -32,10 +32,9 @@ final class EditorCoordinator: NSObject, WKScriptMessageHandler, WKNavigationDel
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage
     ) {
+        Task { @MainActor in
         guard let body = message.body as? [String: Any],
               let type = body["type"] as? String else { return }
-
-        Task { @MainActor in
             switch type {
             case "ready":
                 self.isReady = true
@@ -108,31 +107,8 @@ final class EditorCoordinator: NSObject, WKScriptMessageHandler, WKNavigationDel
 
 @MainActor
 func makeEditorWebView(coordinator: EditorCoordinator) -> WKWebView {
-    let config = WKWebViewConfiguration()
-    config.userContentController.add(
-        WeakScriptMessageHandler(coordinator),
-        name: kEditorBridgeName
-    )
-    // Register our custom scheme so assets load without file:// permissions
-    config.setURLSchemeHandler(EditorSchemeHandler(), forURLScheme: EditorSchemeHandler.scheme)
-
-    let webView = WKWebView(frame: .zero, configuration: config)
+    let webView = makeGitfluenceWebView(messageHandler: coordinator)
     webView.navigationDelegate = coordinator
     coordinator.webView = webView
     return webView
-}
-
-// ─── Weak message handler wrapper ─────────────────────────────────────────────
-// Prevents WKUserContentController from retaining the coordinator in a cycle.
-
-private final class WeakScriptMessageHandler: NSObject, WKScriptMessageHandler {
-    weak var target: WKScriptMessageHandler?
-    init(_ target: WKScriptMessageHandler) { self.target = target }
-
-    func userContentController(
-        _ userContentController: WKUserContentController,
-        didReceive message: WKScriptMessage
-    ) {
-        target?.userContentController(userContentController, didReceive: message)
-    }
 }

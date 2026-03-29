@@ -19,6 +19,7 @@ struct FileTreeView: View {
             // Only allow selecting leaf files, not directories
             if let found, !found.isDirectory {
                 appState.selectedFile = found
+                appState.selectedPR   = nil   // clear PR when navigating to a file
             } else {
                 // Clicked a directory — deselect it so it only expands/collapses
                 if found?.isDirectory == true {

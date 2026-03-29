@@ -10,15 +10,24 @@ struct SidebarView: View {
             if let repo = appState.repository {
                 repoHeader(repo)
                 Divider()
+                sectionPicker
+                Divider()
             }
 
-            // File tree or loading state
+            // Section content
             if appState.isLoadingRepo {
                 loadingView
-            } else if appState.fileTree.isEmpty && appState.repository != nil {
-                emptyTreeView
             } else if appState.repository != nil {
-                FileTreeView(selectedID: $selectedID)
+                switch appState.sidebarSection {
+                case .files:
+                    if appState.fileTree.isEmpty {
+                        emptyTreeView
+                    } else {
+                        FileTreeView(selectedID: $selectedID)
+                    }
+                case .pullRequests:
+                    PRListView()
+                }
             }
         }
         .toolbar {
@@ -34,6 +43,20 @@ struct SidebarView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Section picker
+
+    @ViewBuilder
+    private var sectionPicker: some View {
+        @Bindable var state = appState
+        Picker("Section", selection: $state.sidebarSection) {
+            Text("Files").tag(AppState.SidebarSection.files)
+            Text("Pull Requests").tag(AppState.SidebarSection.pullRequests)
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
     }
 
     // MARK: - Sub-views

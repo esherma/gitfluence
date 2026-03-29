@@ -10,16 +10,19 @@ struct FileEditorView: View {
     @State private var isDirty:   Bool   = false
     @State private var isLoading: Bool   = true
     @State private var saveError: String?
+    @State private var fileDiff:  String = ""
 
     var body: some View {
         ZStack {
-            // ── Active editor ──────────────────────────────────────────────
+            // ── Active editor / diff ───────────────────────────────────────
             Group {
                 switch appState.viewMode {
                 case .rich:
                     RichEditorView(markdown: $markdown)
                 case .source:
                     SourceEditorView(markdown: $markdown)
+                case .diff:
+                    DiffView(diff: fileDiff)
                 }
             }
             .opacity(isLoading ? 0 : 1)
@@ -63,6 +66,12 @@ struct FileEditorView: View {
         .onChange(of: markdown) { _, _ in
             if !isLoading { isDirty = true }
         }
+        // ── Load diff when switching to diff mode ──────────────────────────
+        .onChange(of: appState.viewMode) { _, newMode in
+            if newMode == .diff && fileDiff.isEmpty {
+                Task { await loadDiff() }
+            }
+        }
         // ── ⌘S to save ────────────────────────────────────────────────────
         .background {
             Button("Save") { Task { await saveFile() } }
@@ -84,7 +93,7 @@ struct FileEditorView: View {
                 }
             }
             ToolbarItemGroup(placement: .primaryAction) {
-                ViewModeToggle()
+                ViewModeToggle(showDiff: file.status != nil)
 
                 Button {
                     Task { await saveFile() }
@@ -92,7 +101,7 @@ struct FileEditorView: View {
                     Image(systemName: "square.and.arrow.down")
                 }
                 .help("Save  ⌘S")
-                .disabled(!isDirty)
+                .disabled(!isDirty || appState.viewMode == .diff)
             }
         }
     }
@@ -103,6 +112,7 @@ struct FileEditorView: View {
         isLoading = true
         isDirty   = false
         saveError = nil
+        fileDiff  = ""
         defer { isLoading = false }
 
         do {
@@ -111,6 +121,13 @@ struct FileEditorView: View {
             saveError = "Could not load file: \(error.localizedDescription)"
             markdown  = ""
         }
+    }
+
+    private func loadDiff() async {
+        guard let repo = appState.repository else { return }
+        fileDiff = (try? await GitService.diff(
+            relativePath: file.relativePath, in: repo
+        )) ?? ""
     }
 
     private func saveFile() async {
